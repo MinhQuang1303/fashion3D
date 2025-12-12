@@ -1,0 +1,628 @@
+/*
+
+cd C:\laragon\www\shopthoitrang
+php websocket_server.php 
+  sử dụng chạy cmd này để chạy websocket server
+php shopthoitrang/websocket_server/server.php
+
+composer require cboden/ratchet hàm làm ra websocket server
+
+
+
+
+
+DROP DATABASE IF EXISTS shop_thoi_trang;
+CREATE DATABASE shop_thoi_trang CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE shop_thoi_trang;
+
+
+-- 1. Bảng Users
+CREATE TABLE Users (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(15),
+    address TEXT,
+    role ENUM('customer', 'admin') DEFAULT 'customer',
+    is_verified BOOLEAN DEFAULT FALSE,
+    points INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_email (email),
+    INDEX idx_role (role)
+) ENGINE=InnoDB;
+
+-- 2. Bảng Categories
+CREATE TABLE Categories (
+    category_id INT PRIMARY KEY AUTO_INCREMENT,
+    category_name VARCHAR(100) NOT NULL,
+    description TEXT,
+    parent_id INT DEFAULT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (parent_id) REFERENCES Categories(category_id) ON DELETE SET NULL,
+    INDEX idx_parent (parent_id)
+) ENGINE=InnoDB;
+
+-- 3. Bảng Products
+CREATE TABLE Products (
+    product_id INT PRIMARY KEY AUTO_INCREMENT,
+    category_id INT NOT NULL,
+    product_name VARCHAR(200) NOT NULL,
+    description TEXT,
+    base_price DECIMAL(10,2) NOT NULL,
+    discount_percent INT DEFAULT 0,
+    is_hot BOOLEAN DEFAULT FALSE,
+    is_bestseller BOOLEAN DEFAULT FALSE,
+    thumbnail_url VARCHAR(255),
+    model_3d VARCHAR(255) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES Categories(category_id) ON DELETE CASCADE,
+    INDEX idx_category (category_id),
+    INDEX idx_hot (is_hot),
+    INDEX idx_bestseller (is_bestseller)
+) ENGINE=InnoDB;
+
+-- 4. Bảng Product_Images
+CREATE TABLE Product_Images (
+    image_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    image_url VARCHAR(255) NOT NULL,
+    is_main BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES Products(product_id) ON DELETE CASCADE,
+    INDEX idx_product_image (product_id)
+) ENGINE=InnoDB;
+
+-- 5. Bảng Product_Variants
+CREATE TABLE Product_Variants (
+    variant_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    color VARCHAR(50),
+    size VARCHAR(20),
+    stock INT DEFAULT 0,
+    sku VARCHAR(50) UNIQUE,
+    price_adjustment DECIMAL(10,2) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES Products(product_id) ON DELETE CASCADE,
+    INDEX idx_product (product_id),
+    INDEX idx_stock (stock)
+) ENGINE=InnoDB;
+
+-- 6. Bảng Inventory_Transactions
+CREATE TABLE Inventory_Transactions (
+    transaction_id INT PRIMARY KEY AUTO_INCREMENT,
+    variant_id INT NOT NULL,
+    transaction_type ENUM('in', 'out') NOT NULL,
+    quantity INT NOT NULL,
+    note TEXT,
+    created_by INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (variant_id) REFERENCES Product_Variants(variant_id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by) REFERENCES Users(user_id) ON DELETE SET NULL,
+    INDEX idx_variant (variant_id),
+    INDEX idx_type (transaction_type)
+) ENGINE=InnoDB;
+
+-- 7. Bảng Cart
+CREATE TABLE Cart (
+    cart_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    UNIQUE KEY unique_user_cart (user_id)
+) ENGINE=InnoDB;
+
+-- 8. Bảng Cart_Items
+CREATE TABLE Cart_Items (
+    cart_item_id INT PRIMARY KEY AUTO_INCREMENT,
+    cart_id INT NOT NULL,
+    variant_id INT NOT NULL,
+    quantity INT NOT NULL DEFAULT 1,
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (cart_id) REFERENCES Cart(cart_id) ON DELETE CASCADE,
+    FOREIGN KEY (variant_id) REFERENCES Product_Variants(variant_id) ON DELETE CASCADE,
+    UNIQUE KEY unique_cart_variant (cart_id, variant_id)
+) ENGINE=InnoDB;
+
+-- 9. Bảng Wishlist
+CREATE TABLE Wishlist (
+    wishlist_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    product_id INT NOT NULL,
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES Products(product_id) ON DELETE CASCADE,
+    UNIQUE KEY unique_user_product (user_id, product_id)
+) ENGINE=InnoDB;
+
+-- 10. Bảng Orders
+CREATE TABLE Orders (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    order_code VARCHAR(20) UNIQUE NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL,
+    discount_amount DECIMAL(10,2) DEFAULT 0,
+    final_amount DECIMAL(10,2) NOT NULL,
+    status ENUM('pending', 'confirmed', 'shipping', 'delivered', 'cancelled') DEFAULT 'pending',
+    payment_method ENUM('cod', 'momo_qr', 'momo_atm') DEFAULT 'cod',
+    shipping_address TEXT NOT NULL,
+    shipping_phone VARCHAR(15) NOT NULL,
+    shipping_name VARCHAR(100) NOT NULL,
+    note TEXT,
+    confirmed_at TIMESTAMP NULL,
+    delivered_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    momo_trans_id VARCHAR(50) DEFAULT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    INDEX idx_user (user_id),
+    INDEX idx_status (status),
+    INDEX idx_code (order_code)
+) ENGINE=InnoDB;
+
+-- 11. Bảng Order_Details
+CREATE TABLE Order_Details (
+    detail_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT NOT NULL,
+    variant_id INT NOT NULL,
+    product_name VARCHAR(200) NOT NULL,
+    color VARCHAR(50),
+    size VARCHAR(20),
+    price DECIMAL(10,2) NOT NULL,
+    quantity INT NOT NULL,
+    subtotal DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id) ON DELETE CASCADE,
+    FOREIGN KEY (variant_id) REFERENCES Product_Variants(variant_id) ON DELETE RESTRICT
+) ENGINE=InnoDB;
+
+-- 12. Bảng Payments
+CREATE TABLE Payments (
+    payment_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT NOT NULL,
+    payment_method ENUM('cod', 'momo_qr', 'momo_atm') NOT NULL,
+    transaction_id VARCHAR(100) DEFAULT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    status ENUM('pending', 'completed', 'failed') DEFAULT 'pending',
+    payment_data TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id) ON DELETE CASCADE,
+    INDEX idx_order (order_id),
+    INDEX idx_transaction (transaction_id)
+) ENGINE=InnoDB;
+
+-- 13. Bảng Vouchers
+CREATE TABLE Vouchers (
+    voucher_id INT PRIMARY KEY AUTO_INCREMENT,
+    voucher_code VARCHAR(50) UNIQUE NOT NULL,
+    discount_percent INT NOT NULL,
+    min_order_amount DECIMAL(10,2) DEFAULT 0,
+    max_discount_amount DECIMAL(10,2),
+    usage_limit INT DEFAULT 0,
+    used_count INT DEFAULT 0,
+    valid_from TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    valid_to TIMESTAMP NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_code (voucher_code),
+    INDEX idx_active (is_active)
+) ENGINE=InnoDB;
+
+-- 14. Bảng Hot_Keywords
+CREATE TABLE Hot_Keywords (
+    keyword_id INT PRIMARY KEY AUTO_INCREMENT,
+    keyword_text VARCHAR(100) UNIQUE NOT NULL,
+    description VARCHAR(255),
+    search_count INT DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_keyword_text (keyword_text),
+    INDEX idx_active (is_active)
+) ENGINE=InnoDB;
+
+-- 15. Bảng Voucher_Usage
+CREATE TABLE Voucher_Usage (
+    usage_id INT PRIMARY KEY AUTO_INCREMENT,
+    voucher_id INT NOT NULL,
+    user_id INT NOT NULL,
+    order_id INT NOT NULL,
+    discount_amount DECIMAL(10,2) NOT NULL,
+    used_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (voucher_id) REFERENCES Vouchers(voucher_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id) ON DELETE CASCADE,
+    INDEX idx_voucher (voucher_id),
+    INDEX idx_user (user_id)
+) ENGINE=InnoDB;
+
+-- 16. Bảng Reviews
+CREATE TABLE Reviews (
+    review_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    user_id INT NOT NULL,
+    order_id INT NOT NULL,
+    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment TEXT,
+    is_approved BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES Products(product_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id) ON DELETE CASCADE,
+    INDEX idx_product (product_id),
+    INDEX idx_approved (is_approved)
+) ENGINE=InnoDB;
+
+-- 17. Bảng Points
+CREATE TABLE Points (
+    point_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    order_id INT,
+    points INT NOT NULL,
+    type ENUM('earn', 'redeem') NOT NULL,
+    description VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id) ON DELETE SET NULL,
+    INDEX idx_user (user_id)
+) ENGINE=InnoDB;
+
+-- 18. Bảng Notifications
+CREATE TABLE Notifications (
+    notification_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    message TEXT NOT NULL,
+    type ENUM('order', 'promotion', 'system') DEFAULT 'system',
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    INDEX idx_user (user_id),
+    INDEX idx_read (is_read)
+) ENGINE=InnoDB;
+
+-- 19. Bảng Events
+CREATE TABLE Events (
+    event_id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(200) NOT NULL,
+    content TEXT NOT NULL,
+    image_url VARCHAR(255),
+    event_date DATE,
+    is_published BOOLEAN DEFAULT TRUE,
+    created_by INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES Users(user_id) ON DELETE SET NULL,
+    INDEX idx_published (is_published)
+) ENGINE=InnoDB;
+
+-- 20. Bảng Admin_Logs
+CREATE TABLE Admin_Logs (
+    log_id INT PRIMARY KEY AUTO_INCREMENT,
+    admin_id INT NOT NULL,
+    action VARCHAR(100) NOT NULL,
+    table_name VARCHAR(50),
+    record_id INT,
+    details TEXT,
+    ip_address VARCHAR(45),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (admin_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    INDEX idx_admin (admin_id),
+    INDEX idx_action (action)
+) ENGINE=InnoDB;
+
+-- 21. Bảng Password_OTP
+CREATE TABLE Password_OTP (
+    otp_id INT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(100) NOT NULL,
+    otp_code VARCHAR(6) NOT NULL,
+    type ENUM('register', 'forgot_password', 'change_password') NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    is_used BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_email (email),
+    INDEX idx_otp (otp_code),
+    INDEX idx_expires (expires_at)
+) ENGINE=InnoDB;
+
+-- 22. Bảng Keyword_Product_Mapping
+CREATE TABLE Keyword_Product_Mapping (
+    mapping_id INT PRIMARY KEY AUTO_INCREMENT,
+    keyword_id INT NOT NULL,
+    product_id INT NOT NULL,
+    priority INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (keyword_id) REFERENCES Hot_Keywords(keyword_id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES Products(product_id) ON DELETE CASCADE,
+    UNIQUE KEY unique_keyword_product (keyword_id, product_id)
+) ENGINE=INNODB;
+
+ALTER TABLE Reviews ADD COLUMN admin_reply TEXT NULL;
+ALTER TABLE Reviews ADD COLUMN reply_at DATETIME NULL;
+
+-- =================================================================
+-- BƯỚC 3: CHÈN DỮ LIỆU MẪU (INSERT DATA)
+-- =================================================================
+
+-- 1. Chèn Admin
+INSERT INTO Users (email, password, full_name, phone, role, is_verified) VALUES
+('cefor28396@docsfy.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Administrator', '0123456789', 'admin', TRUE);
+
+-- 2. Chèn Categories
+INSERT INTO Categories (category_name, description) VALUES
+-- Nhóm Nam
+('Áo Nam', 'Các loại áo thun, sơ mi, polo thiết kế dành cho nam'),
+('Quần Nam', 'Các loại quần jeans, kaki, quần âu, quần short nam'),
+('Áo Khoác Nam', 'Áo khoác gió, bomber, denim và áo vest cho nam'),
+('Giày Dép Nam', 'Sneaker, giày tây, sandal và boots nam cao cấp'),
+
+-- Nhóm Nữ
+('Áo Nữ', 'Các loại áo kiểu, croptop, sơ mi, áo len dành cho nữ'),
+('Quần Nữ', 'Các loại quần jeans, ống rộng, legging, quần tây nữ'),
+('Váy & Đầm', 'Chân váy ngắn/dài và đầm liền thân dự tiệc, dạo phố'),
+('Áo Khoác Nữ', 'Áo khoác dạ, cardigan, blazer và áo phao nữ'),
+('Giày Dép Nữ', 'Giày cao gót, búp bê, sneaker và boots nữ thời thượng'),
+
+-- Nhóm Phụ Kiện & Khác
+('Túi Xách & Ví', 'Túi đeo chéo, túi tote, ba lô và ví da cầm tay'),
+('Mũ & Nón', 'Mũ lưỡi trai, nón bucket, nón len và nón vành'),
+('Phụ Kiện Thời Trang', 'Kính mắt, thắt lưng, khăn choàng, trang sức'),
+('Đồ Thể Thao', 'Trang phục tập Gym, Yoga, chạy bộ co giãn đa chiều'),
+('Vest & Blazer', 'Âu phục công sở và các thiết kế Vest sang trọng'),
+('Đồ Mặc Nhà & Nội Y', 'Pijama, đồ ngủ lụa, nội y và tất vớ thoải mái');
+
+-- 3. Chèn Products (Chia làm 2 nhóm để tránh lỗi 1136)
+
+-- Nhóm 1: Có Model 3D
+-- Xóa dữ liệu cũ (nếu muốn làm mới lại từ đầu)
+-- TRUNCATE TABLE Products;
+
+INSERT INTO Products (category_id, product_name, description, base_price, discount_percent, is_hot, is_bestseller, thumbnail_url, model_3d) VALUES
+-- 1. Áo Thun Nam A1
+(1, 'Áo Nam A1', 
+'Sự Tinh Tế Đến Từ Sự Đơn Giản.
+Áo thun nam A1 Basic là biểu tượng của phong cách Minimalism. Được dệt từ sợi Cotton Compact cao cấp 100%, áo mang lại cảm giác mềm mịn như nhung và khả năng thấm hút mồ hôi tuyệt đối.
+- Chất liệu: 100% Cotton Compact 4 chiều.
+- Form dáng: Regular Fit, tôn dáng nhưng vẫn thoải mái vận động.
+- Công nghệ: Wash kỹ thuật số chống co rút và phai màu sau nhiều lần giặt.
+Sản phẩm phù hợp để mặc hàng ngày, đi làm hoặc đi chơi, dễ dàng phối với Jeans hoặc Khaki.', 
+199000, 5, TRUE, FALSE, '/a1.jpg', 'aa1.glb'),
+
+-- 2. Áo Polo Nam A2
+(1, 'Áo Nam A2', 
+'Đẳng Cấp Quý Ông Hiện Đại.
+Áo Polo Nam A2 sở hữu thiết kế cổ bẻ cổ điển nhưng được cách tân với bo tay dệt kim sắc sảo. Chất vải Pique mắt chim (cấu trúc tổ ong) giúp áo đứng form, thoáng khí và hạn chế nhăn nhàu tối đa.
+- Chất liệu: Vải Pique CVC (60% Cotton, 40% Poly) bền bỉ.
+- Điểm nhấn: Cúc áo ngọc trai sang trọng, logo thêu tinh tế.
+- Phong cách: Smart Casual - Lịch sự nơi công sở, năng động khi xuống phố.', 
+259000, 10, FALSE, FALSE, '/a2.jpg', 'a2.glb'),
+
+-- 3. Áo Sơ Mi Nam A3
+(1, 'Áo Nam A3', 
+'Chuẩn Mực Thời Trang Công Sở.
+Sơ mi nam A3 là sự lựa chọn hoàn hảo cho những buổi họp quan trọng hay gặp gỡ đối tác. Chất liệu vải sợi tre (Bamboo) kháng khuẩn tự nhiên, chống tia UV và cực kỳ mát lạnh khi chạm vào.
+- Chất liệu: Sợi Bamboo thiên nhiên kết hợp Spandex chống nhăn.
+- Thiết kế: Form Slimfit ôm nhẹ, tà bầu trẻ trung.
+- Tính năng: Kháng khuẩn, khử mùi, không cần ủi nhiều.', 
+299000, 0, TRUE, FALSE, '/a3.jpg', 'a3.glb'),
+
+-- 4. Áo Khoác Gió A6
+(1, 'Áo Nam A6', 
+'Bất Chấp Mọi Thời Tiết.
+Áo khoác gió A6 được thiết kế với công nghệ trượt nước (Water Repellent), giúp bạn an tâm di chuyển dưới những cơn mưa nhẹ. Lớp lót lưới bên trong giúp thoáng khí, không gây bí bách.
+- Chất liệu: Polyester dù cao cấp, chắn gió, trượt nước.
+- Tiện ích: Túi khóa kéo an toàn, mũ trùm đầu có thể tháo rời.
+- Mùa phù hợp: Thu Đông hoặc đi phượt, dã ngoại.', 
+349000, 10, TRUE, FALSE, '/a6.jpg', 'aa6.glb'),
+
+-- 5. Áo Khoác Gió Nhẹ A8
+(1, 'Áo Nam A8', 
+'Siêu Nhẹ - Siêu Gọn - Siêu Tiện Lợi.
+Phiên bản nâng cấp của dòng áo khoác gió, A8 tập trung vào trọng lượng siêu nhẹ, có thể gấp gọn vào túi nhỏ. Màu sắc trung tính, hiện đại, phù hợp cho cả nam và nữ.
+- Chất liệu: Vải dù nhăn (Crinkle Nylon) thời thượng.
+- Thiết kế: Bo gấu năng động, khóa kéo YKK siêu bền.
+- Tính năng: Chống tia UV UPF 50+, cản bụi tốt.', 
+349000, 10, TRUE, FALSE, '/a8.jpg', 'a8.glb'),
+
+-- 6. Quần Jean Nam Q1
+(2, 'Quần Nam Q1', 
+'Bụi Bặm Và Phong Trần.
+Quần Jean Q1 dáng Slim fit giúp tôn lên đôi chân thon gọn nhưng vẫn đảm bảo sự thoải mái nhờ chất liệu Denim co giãn. Màu wash tự nhiên, bền màu theo thời gian.
+- Chất liệu: Denim 12oz pha Spandex co giãn 2 chiều.
+- Kiểu dáng: Slim fit, ống côn vừa phải.
+- Chi tiết: Đường may nổi chắc chắn, khóa kéo đồng chống rỉ.', 
+399000, 0, TRUE, FALSE, '/q2.jpg', 'Q2.glb'),
+
+-- 7. Quần Short Nam Q2
+(2, 'Quần Nam Q2', 
+'Năng Động Mọi Lúc Mọi Nơi.
+Quần short thể thao Q2 là người bạn đồng hành lý tưởng cho các buổi tập gym, chạy bộ hay mặc nhà. Chất vải Poly lỗ kim giúp thoát mồ hôi cực nhanh.
+- Chất liệu: 95% Polyester, 5% Spandex.
+- Công nghệ: Quick-Dry khô thoáng tức thì.
+- Thiết kế: Lưng chun có dây rút điều chỉnh, túi khóa kéo sâu rộng.', 
+199000, 5, FALSE, FALSE, '/q5.jpg', 'Q5.glb'),
+
+-- 8. Áo Thun Nữ AN1
+(3, 'Áo Nữ AN1', 
+'Phong Cách Oversize Cá Tính.
+Áo thun nữ AN1 với form rộng Oversize đang là hot trend của giới trẻ. Hình in Graphic sắc nét, không bong tróc, tạo điểm nhấn nổi bật cho outfit của bạn.
+- Chất liệu: Cotton 2 chiều dày dặn, đứng form.
+- Kiểu dáng: Oversize rộng rãi, tay lỡ, cổ tròn bo gân.
+- Phối đồ: Hoàn hảo khi mặc kiểu giấu quần hoặc sơ vin vạt trước.', 
+199000, 0, TRUE, FALSE, '/an2.jpg', 'AN1.glb'),
+
+-- 9. Áo Croptop Nữ AN2
+(3, 'Áo Nữ AN2', 
+'Quyến Rũ Và Năng Động.
+Áo Croptop AN2 giúp khoe trọn vòng eo con kiến, mang lại vẻ ngoài vừa khỏe khoắn vừa gợi cảm. Chất thun gân co giãn 4 chiều ôm sát cơ thể nhưng không gây khó chịu.
+- Chất liệu: Thun Rib (thun gân) co giãn cực tốt.
+- Thiết kế: Cổ vuông vintage hoặc cổ tròn basic, tay ngắn.
+- Màu sắc: Các tông màu Pastel ngọt ngào, dễ phối đồ.', 
+179000, 0, TRUE, FALSE, '/an3.jpg', 'AN3.glb'),
+
+-- 10. Quần Jean Nữ QN1
+(4, 'Quần Nữ QN1', 
+'Hack Dáng Thần Sầu.
+Quần Jean ống rộng (Wide Leg) QN1 là vũ khí bí mật giúp đôi chân trông dài miên man. Lưng cao qua rốn giúp che khuyết điểm vòng 2 hiệu quả.
+- Chất liệu: Jeans Cotton không giãn, giữ form ống đứng chuẩn.
+- Thiết kế: Ống suông rộng, lai quần tưa hoặc may gấu.
+- Phong cách: Retro, Vintage, Y2K.', 
+399000, 15, TRUE, FALSE, '/qn1.jpg', 'QN1.glb'),
+
+-- 11. Quần Tây Nữ QN2
+(4, 'Quần Nữ QN2', 
+'Thanh Lịch Nơi Công Sở.
+Quần tây QN2 mang đến vẻ ngoài chuyên nghiệp, chỉn chu cho các quý cô văn phòng. Thiết kế Baggy thoải mái ở hông và thu nhỏ dần về ống, phù hợp mọi dáng người.
+- Chất liệu: Vải Tuypsi Hàn Quốc, mềm, rủ, không nhăn.
+- Kiểu dáng: Baggy lưng cao, xếp ly nhẹ phía trước.
+- Chi tiết: Túi chéo tiện lợi, đỉa quần tinh tế để đeo thắt lưng.', 
+359000, 5, TRUE, FALSE, '/qn2.jpg', 'QN2.glb');
+
+-- Nhóm 2: Không có Model 3D (Cột model_3d sẽ tự NULL)
+INSERT INTO Products (category_id, product_name, description, base_price, discount_percent, is_hot, is_bestseller, thumbnail_url) VALUES
+(1, 'Áo Nam A4', 'Áo sweater nam basic', 329000, 5, FALSE, FALSE, '/a6.jpg'),
+(1, 'Áo Nam A5', 'Áo khoác gió', 349000, 10, TRUE, FALSE, '/a5.jpg'),
+(1, 'Áo Nam A9', 'Áo thun trắng trơn', 150000, 0, FALSE, FALSE, '/a9.jpg'),
+(5, 'Combo CB1', 'Set áo và váy nữ', 499000, 10, TRUE, FALSE, '/cb1.jpeg'),
+(5, 'Combo CB2', 'Combo thể thao', 459000, 10, TRUE, FALSE, '/cb2.jpg'),
+(5, 'Combo CB3', 'Set đồ dạo phố', 419000, 5, TRUE, FALSE, '/cb3.jpg'),
+(5, 'Combo CB4', 'Combo công sở', 559000, 15, TRUE, FALSE, '/cb4.jpeg'),
+(5, 'Combo CB5', 'Set váy áo nhẹ nhàng', 489000, 5, FALSE, FALSE, '/cb5.jpeg'),
+(5, 'Combo CB6', 'Combo đồ ngủ', 299000, 0, FALSE, FALSE, '/cb6.jpg');
+
+-- 4. Chèn Product_Images (Dùng SELECT để lấy đúng ID sản phẩm)
+INSERT INTO Product_Images (product_id, image_url, is_main)
+SELECT p.product_id, t.url, t.is_main
+FROM Products p
+JOIN (
+    -- Áo Nam A1
+    SELECT 'Áo Nam A1' as name, '/a1.jpg' as url, TRUE as is_main
+    UNION ALL SELECT 'Áo Nam A1', '/a11.jpg', FALSE
+    UNION ALL SELECT 'Áo Nam A1', '/a111.jpg', FALSE
+    -- Áo Nam A2
+    UNION ALL SELECT 'Áo Nam A2', '/a2.jpg', TRUE
+    UNION ALL SELECT 'Áo Nam A2', '/a22.jpg', FALSE
+    UNION ALL SELECT 'Áo Nam A2', '/a222.jpg', FALSE
+    -- Áo Nam A3
+    UNION ALL SELECT 'Áo Nam A3', '/a3.jpg', TRUE
+    UNION ALL SELECT 'Áo Nam A3', '/a33.jpg', FALSE
+    UNION ALL SELECT 'Áo Nam A3', '/a333.jpg', FALSE
+    -- Áo Nam A4
+    UNION ALL SELECT 'Áo Nam A4', '/a4.jpg', TRUE
+    UNION ALL SELECT 'Áo Nam A4', '/a44.jpg', FALSE
+    UNION ALL SELECT 'Áo Nam A4', '/a444.jpg', FALSE
+    -- Áo Nam A5
+    UNION ALL SELECT 'Áo Nam A5', '/a5.jpg', TRUE
+    UNION ALL SELECT 'Áo Nam A5', '/a55.jpg', FALSE
+    UNION ALL SELECT 'Áo Nam A5', '/a555.jpg', FALSE
+    -- Áo Nữ AN1
+    UNION ALL SELECT 'Áo Nữ AN1', '/an1.jpg', TRUE
+    UNION ALL SELECT 'Áo Nữ AN1', '/an11.jpg', FALSE
+    UNION ALL SELECT 'Áo Nữ AN1', '/an111.jpg', FALSE
+    -- Quần Nữ QN1
+    UNION ALL SELECT 'Quần Nữ QN1', '/qn1.jpg', TRUE
+    UNION ALL SELECT 'Quần Nữ QN1', '/qn11.jpg', FALSE
+    UNION ALL SELECT 'Quần Nữ QN1', '/qn111.jpg', FALSE
+    -- Combo CB1
+    UNION ALL SELECT 'Combo CB1', '/cb1.jpg', TRUE
+    UNION ALL SELECT 'Combo CB1', '/cb11.jpg', FALSE
+    UNION ALL SELECT 'Combo CB1', '/cb111.jpg', FALSE
+) t ON p.product_name = t.name;
+
+-- 5. Chèn Product_Variants (Dùng SELECT để lấy đúng ID sản phẩm)
+INSERT INTO Product_Variants (product_id, color, size, stock, sku)
+SELECT p.product_id, t.color, t.size, t.stock, t.sku
+FROM Products p
+JOIN (
+    -- Áo Nam A1
+    SELECT 'Áo Nam A1' as name, 'Trắng' as color, 'M' as size, 50 as stock, 'A1-M-TRANG' as sku
+    UNION ALL SELECT 'Áo Nam A1', 'Trắng', 'L', 40, 'A1-L-TRANG'
+    UNION ALL SELECT 'Áo Nam A1', 'Đen', 'M', 60, 'A1-M-DEN'
+    UNION ALL SELECT 'Áo Nam A1', 'Đen', 'L', 45, 'A1-L-DEN'
+    -- Áo Nam A2
+    UNION ALL SELECT 'Áo Nam A2', 'Đỏ', 'M', 35, 'A2-M-DO'
+    UNION ALL SELECT 'Áo Nam A2', 'Đỏ', 'L', 30, 'A2-L-DO'
+    UNION ALL SELECT 'Áo Nam A2', 'Xanh Navy', 'M', 45, 'A2-M-XN'
+    UNION ALL SELECT 'Áo Nam A2', 'Xanh Navy', 'L', 40, 'A2-L-XN'
+    -- Áo Nam A3
+    UNION ALL SELECT 'Áo Nam A3', 'Trắng', 'M', 50, 'A3-M-TRANG'
+    UNION ALL SELECT 'Áo Nam A3', 'Trắng', 'L', 45, 'A3-L-TRANG'
+    -- Quần Nam Q1
+    UNION ALL SELECT 'Quần Nam Q1', 'Xanh Đậm', '29', 40, 'Q1-29-XDAM'
+    UNION ALL SELECT 'Quần Nam Q1', 'Xanh Đậm', '31', 35, 'Q1-31-XDAM'
+    UNION ALL SELECT 'Quần Nam Q1', 'Đen', '29', 45, 'Q1-29-DEN'
+    UNION ALL SELECT 'Quần Nam Q1', 'Đen', '31', 40, 'Q1-31-DEN'
+    -- Áo Nữ AN1
+    UNION ALL SELECT 'Áo Nữ AN1', 'Hồng', 'S', 70, 'AN1-S-HONG'
+    UNION ALL SELECT 'Áo Nữ AN1', 'Hồng', 'M', 65, 'AN1-M-HONG'
+    UNION ALL SELECT 'Áo Nữ AN1', 'Trắng', 'S', 75, 'AN1-S-TRANG'
+    UNION ALL SELECT 'Áo Nữ AN1', 'Trắng', 'M', 80, 'AN1-M-TRANG'
+    -- Combo CB1
+    UNION ALL SELECT 'Combo CB1', 'Trắng', 'S', 20, 'CB1-S-TRANG'
+    UNION ALL SELECT 'Combo CB1', 'Trắng', 'M', 18, 'CB1-M-TRANG'
+) t ON p.product_name = t.name;
+
+-- 6. Chèn Variants mặc định cho các sản phẩm còn lại (để tránh lỗi giỏ hàng)
+INSERT INTO Product_Variants (product_id, color, size, stock, sku)
+SELECT p.product_id, 'Mặc định', 'FreeSize', 100, CONCAT('DEF-', p.product_id)
+FROM Products p
+LEFT JOIN Product_Variants pv ON p.product_id = pv.product_id
+WHERE pv.variant_id IS NULL;
+
+INSERT INTO Events (title, content, image_url, event_date, is_published, created_by)
+VALUES
+-- Sự kiện có sẵn của bạn (Giữ nguyên)
+('Ra Mắt Bộ Sưu Tập Xuân 2025', 'Khám phá bộ sưu tập xuân mới với các thiết kế độc đáo, mở ra kỷ nguyên thời trang cá nhân hóa.', 'sk1.jpg', '2026-02-15', TRUE, NULL),
+('Flash Sale Mừng Năm Mới', 'Giảm giá lên đến 70% các sản phẩm Best-seller, chỉ áp dụng trong 48 giờ. Cơ hội không thể bỏ lỡ!', 'sk2.webp', '2026-01-01', TRUE, NULL),
+
+-- Sự kiện mới thêm
+('Giới Thiệu Bộ Sưu Tập Hè "Sunset Vibe"', 
+ 'Tận hưởng những thiết kế phóng khoáng, màu sắc rực rỡ và chất liệu linen cao cấp cho mùa hè rực lửa. Khám phá ngay Drop Hè 2026.', 
+ 'sk3.png', 
+ '2026-06-10', 
+ TRUE, NULL
+),
+('Tuyển Chọn Gương Mặt Đại Diện Mùa Thu', 
+ 'Tìm kiếm những người mẫu tài năng, cá tính mạnh mẽ cho chiến dịch quảng bá bộ sưu tập Thu Đông 2026. Đăng ký ngay để tỏa sáng!', 
+ 'sk4.jpg', 
+ '2026-08-05', 
+ TRUE, NULL
+),
+('Sự Kiện VIP Private Viewing & Sale', 
+ 'Cơ hội mua sắm độc quyền với ưu đãi 40% dành riêng cho thành viên hạng Bạc trở lên. Xem trước bộ sưu tập mới nhất trước khi ra mắt công chúng.', 
+ 'sk5.png', 
+ '2025-12-20', 
+ TRUE, NULL
+),
+('Ưu Đãi Đặc Biệt Ngày 8/3', 
+ 'Tặng kèm voucher 200K cho hóa đơn từ 1 triệu đồng. Chương trình áp dụng cho tất cả các khách hàng nữ nhân ngày Quốc tế Phụ nữ.', 
+ 'sk6.jpg', 
+ '2026-03-08', 
+ TRUE, NULL
+);
+-- 8. Chèn Hot Keywords
+INSERT INTO Hot_Keywords (keyword_text, description, search_count, is_active) VALUES
+('áo thun unisex', 'Áo thun nam nữ', 150, TRUE),
+('giảm giá 50%', 'Sản phẩm sale', 220, TRUE),
+('quần jean', 'Các loại quần jean', 3520, TRUE),
+('best seller', 'Sản phẩm bán chạy', 30, TRUE),
+('combo siêu rẻ', 'Combo tiết kiệm', 95, TRUE);
+
+
+-- 9. Chèn Keyword Mapping (Dùng SELECT để lấy đúng ID sản phẩm)
+INSERT INTO Keyword_Product_Mapping (keyword_id, product_id, priority)
+SELECT k.keyword_id, p.product_id, t.priority
+FROM Hot_Keywords k
+JOIN Products p
+JOIN (
+    SELECT 'áo thun unisex' as k_text, 'Áo Nam A1' as p_name, 20 as priority
+    UNION ALL SELECT 'áo thun unisex', 'Áo Nữ AN1', 20
+    UNION ALL SELECT 'quần jean', 'Quần Nam Q1', 15
+    UNION ALL SELECT 'quần jean', 'Quần Nữ QN1', 15
+    UNION ALL SELECT 'combo siêu rẻ', 'Combo CB1', 15
+    
+) t ON k.keyword_text = t.k_text AND p.product_name = t.p_name;
+
