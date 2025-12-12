@@ -1,0 +1,6 @@
+/* Tùy chỉnh vị trí Toast: Đẩy lên 20px so với mép dưới và lùi vào 20px */
+.toast-container-lowered {
+    /* Ghi đè các class bottom-0 và end-0 của Bootstrap */
+    bottom: 20px !important; 
+    right: 20px !important; 
+}
