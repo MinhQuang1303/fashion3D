@@ -351,278 +351,301 @@ ALTER TABLE Reviews ADD COLUMN reply_at DATETIME NULL;
 INSERT INTO Users (email, password, full_name, phone, role, is_verified) VALUES
 ('cefor28396@docsfy.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Administrator', '0123456789', 'admin', TRUE);
 
--- 2. Chèn Categories
+INSERT INTO Users (email, password, full_name, phone, role, is_verified) VALUES
+('cefor28396@docsfy.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Administrator', '0123456789', 'admin', TRUE);
+
+
 INSERT INTO Categories (category_name, description) VALUES
--- Nhóm Nam
-('Áo Nam', 'Các loại áo thun, sơ mi, polo thiết kế dành cho nam'),
-('Quần Nam', 'Các loại quần jeans, kaki, quần âu, quần short nam'),
-('Áo Khoác Nam', 'Áo khoác gió, bomber, denim và áo vest cho nam'),
-('Giày Dép Nam', 'Sneaker, giày tây, sandal và boots nam cao cấp'),
+('Áo Nam', 'Áo thun, sơ mi, polo nam'),
+('Quần Nam', 'Quần jeans, kaki, âu, short nam'),
+('Áo Khoác Nam', 'Áo khoác gió, vest, bomber'),
+('Giày Dép Nam', 'Giày tây, sneaker, dép nam'),
+('Áo Nữ', 'Áo kiểu, sơ mi, croptop nữ'),
+('Quần Nữ', 'Quần jeans, vải, legging nữ'),
+('Váy & Đầm', 'Chân váy, đầm dự tiệc'),
+('Áo Khoác Nữ', 'Cardigan, blazer, áo dạ'),
+('Giày Dép Nữ', 'Cao gót, búp bê, sneaker nữ'),
+('Túi Xách & Ví', 'Túi đeo, ví da, balo'),
+('Mũ & Nón', 'Nón kết, bucket, mũ len'),
+('Phụ Kiện Khác', 'Thắt lưng, mắt kính'),
+('Đồ Thể Thao', 'Đồ tập Gym, Yoga'),
+('Vest & Blazer', 'Âu phục công sở'),
+('Đồ Mặc Nhà', 'Pijama, đồ ngủ');
 
--- Nhóm Nữ
-('Áo Nữ', 'Các loại áo kiểu, croptop, sơ mi, áo len dành cho nữ'),
-('Quần Nữ', 'Các loại quần jeans, ống rộng, legging, quần tây nữ'),
-('Váy & Đầm', 'Chân váy ngắn/dài và đầm liền thân dự tiệc, dạo phố'),
-('Áo Khoác Nữ', 'Áo khoác dạ, cardigan, blazer và áo phao nữ'),
-('Giày Dép Nữ', 'Giày cao gót, búp bê, sneaker và boots nữ thời thượng'),
-
--- Nhóm Phụ Kiện & Khác
-('Túi Xách & Ví', 'Túi đeo chéo, túi tote, ba lô và ví da cầm tay'),
-('Mũ & Nón', 'Mũ lưỡi trai, nón bucket, nón len và nón vành'),
-('Phụ Kiện Thời Trang', 'Kính mắt, thắt lưng, khăn choàng, trang sức'),
-('Đồ Thể Thao', 'Trang phục tập Gym, Yoga, chạy bộ co giãn đa chiều'),
-('Vest & Blazer', 'Âu phục công sở và các thiết kế Vest sang trọng'),
-('Đồ Mặc Nhà & Nội Y', 'Pijama, đồ ngủ lụa, nội y và tất vớ thoải mái');
-
--- 3. Chèn Products (Chia làm 2 nhóm để tránh lỗi 1136)
-
--- Nhóm 1: Có Model 3D
--- Xóa dữ liệu cũ (nếu muốn làm mới lại từ đầu)
--- TRUNCATE TABLE Products;
-
+-- 2. CHÈN PRODUCTS (Sản phẩm Chính - Đã chuẩn hóa tên và thêm D/DN)
+-- Lưu ý: Tên sản phẩm ở đây PHẢI KHỚP với tên ở bước 3 và 4
 INSERT INTO Products (category_id, product_name, description, base_price, discount_percent, is_hot, is_bestseller, thumbnail_url, model_3d) VALUES
--- 1. Áo Thun Nam A1
-(1, 'Áo Nam A1', 
-'Sự Tinh Tế Đến Từ Sự Đơn Giản.
-Áo thun nam A1 Basic là biểu tượng của phong cách Minimalism. Được dệt từ sợi Cotton Compact cao cấp 100%, áo mang lại cảm giác mềm mịn như nhung và khả năng thấm hút mồ hôi tuyệt đối.
-- Chất liệu: 100% Cotton Compact 4 chiều.
-- Form dáng: Regular Fit, tôn dáng nhưng vẫn thoải mái vận động.
-- Công nghệ: Wash kỹ thuật số chống co rút và phai màu sau nhiều lần giặt.
-Sản phẩm phù hợp để mặc hàng ngày, đi làm hoặc đi chơi, dễ dàng phối với Jeans hoặc Khaki.', 
-199000, 5, TRUE, FALSE, '/a1.jpg', 'aa1.glb'),
 
--- 2. Áo Polo Nam A2
-(1, 'Áo Nam A2', 
-'Đẳng Cấp Quý Ông Hiện Đại.
-Áo Polo Nam A2 sở hữu thiết kế cổ bẻ cổ điển nhưng được cách tân với bo tay dệt kim sắc sảo. Chất vải Pique mắt chim (cấu trúc tổ ong) giúp áo đứng form, thoáng khí và hạn chế nhăn nhàu tối đa.
-- Chất liệu: Vải Pique CVC (60% Cotton, 40% Poly) bền bỉ.
-- Điểm nhấn: Cúc áo ngọc trai sang trọng, logo thêu tinh tế.
-- Phong cách: Smart Casual - Lịch sự nơi công sở, năng động khi xuống phố.', 
-259000, 10, FALSE, FALSE, '/a2.jpg', 'a2.glb'),
+-- --- ÁO NAM (A Series) ---
+(1, 'T-Shirt Cotton Compact Premium', 'Sự tối giản đỉnh cao. Chất liệu Cotton Compact 4 chiều mềm mịn như nhung, thoáng mát tuyệt đối cho ngày hè năng động.', 199000, 5, TRUE, FALSE, '/a1.jpg', 'aa1.glb'),
+(1, 'Polo Signature Teal Blue', 'Sắc xanh cổ vịt thời thượng. Dệt mắt chim (Birdseye) độc đáo giúp áo đứng form, bo cổ dệt kim sắc sảo tôn vẻ nam tính.', 259000, 10, FALSE, TRUE, '/a2.jpg', 'a2.glb'),
+(1, 'Sơ Mi Bamboo Slimfit', 'Vũ khí của quý ông công sở. Sợi tre thiên nhiên kháng khuẩn, chống nhăn tự nhiên, mát lạnh ngay khi chạm vào.', 299000, 0, TRUE, FALSE, '/a3.jpg', 'a3.glb'),
+(1, 'Sơ Mi Oxford Sky Blue', 'Màu xanh da trời dịu nhẹ. Chất vải Oxford dày dặn nhưng thoáng khí, form Regular Fit thoải mái cho mọi vóc dáng.', 320000, 5, FALSE, FALSE, '/a4.jpg', NULL),
+(1, 'Sơ Mi Flannel Streetwear', 'Phong cách bụi bặm. Họa tiết kẻ caro đỏ phối trắng trên nền vải dạ mỏng, item không thể thiếu cho phong cách Layering.', 280000, 5, FALSE, FALSE, '/a5.jpg', 'a5.glb'),
+(1, 'Polo Smart Casual Pastel', 'Tone màu xanh Pastel trẻ trung. Thiết kế tối giản, dễ dàng phối cùng quần âu đi làm hoặc quần short đi chơi.', 249000, 0, FALSE, FALSE, '/a6.jpg', 'a6.glb'),
+(1, 'Polo Luxury Black Gold', 'Đẳng cấp phái mạnh. Màu đen tuyền quyền lực phối viền vàng kim loại sang trọng, chất vải chống bai dão cao cấp.', 299000, 15, TRUE, TRUE, '/a7.jpg', NULL),
+(1, 'Polo Terracotta Trendy', 'Màu Cam Đất nung ấm áp - Trend màu của năm. Giúp tôn da và tạo điểm nhấn nổi bật giữa đám đông.', 249000, 5, FALSE, FALSE, '/a8.jpg', 'a8.glb'),
+(1, 'Polo Classic Blue Basic', 'Chiếc áo "phải có" trong tủ đồ. Màu xanh cổ điển, bền màu, không xù lông sau nhiều lần giặt.', 249000, 0, FALSE, FALSE, '/a9.jpg', NULL),
 
--- 3. Áo Sơ Mi Nam A3
-(1, 'Áo Nam A3', 
-'Chuẩn Mực Thời Trang Công Sở.
-Sơ mi nam A3 là sự lựa chọn hoàn hảo cho những buổi họp quan trọng hay gặp gỡ đối tác. Chất liệu vải sợi tre (Bamboo) kháng khuẩn tự nhiên, chống tia UV và cực kỳ mát lạnh khi chạm vào.
-- Chất liệu: Sợi Bamboo thiên nhiên kết hợp Spandex chống nhăn.
-- Thiết kế: Form Slimfit ôm nhẹ, tà bầu trẻ trung.
-- Tính năng: Kháng khuẩn, khử mùi, không cần ủi nhiều.', 
-299000, 0, TRUE, FALSE, '/a3.jpg', 'a3.glb'),
+-- --- QUẦN NAM (Q Series) ---
+(2, 'Quần Âu Tuyết Mưa Minimalist', 'Chuẩn mực quần tây hiện đại. Vải tuyết mưa dày dặn, giữ ly phẳng phiu cả ngày dài, form dáng Hàn Quốc.', 450000, 0, TRUE, TRUE, '/q1.jpg', 'Q2.glb'),
+(2, 'Quần Kaki Olive Slimfit', 'Màu xanh rêu phong trần. Chất Kaki co giãn nhẹ, túi chéo sâu rộng, đường may tỉ mỉ chắc chắn.', 420000, 10, FALSE, FALSE, '/q2.jpg', NULL),
+(2, 'Short Gió Active Black', 'Siêu nhẹ - Siêu mát. Chất liệu vải dù gió thể thao, thích hợp chạy bộ, tập gym hoặc mặc nhà thoải mái.', 180000, 0, FALSE, TRUE, '/q3.jpg', NULL),
+(2, 'Short Kaki Grey Modern', 'Xám lông chuột hiện đại. Dễ phối với mọi màu áo, thiết kế dài ngang gối lịch sự nhưng vẫn năng động.', 210000, 5, FALSE, FALSE, '/q4.jpg', NULL),
+(2, 'Short Kaki Beige Summer', 'Màu Be tươi sáng. Mang lại cảm giác mát mẻ, phóng khoáng, lựa chọn số 1 cho những chuyến du lịch biển.', 199000, 0, TRUE, FALSE, '/q5.jpg', 'Q5.glb'),
+(2, 'Quần Âu Grey Stripe', 'Họa tiết xám tiêu tinh tế. Mang lại vẻ ngoài chững chạc, thành đạt cho nam giới.', 450000, 10, FALSE, FALSE, '/q6.jpg', NULL),
+(2, 'Jogger Sporty Stripe', 'Năng động từng bước chân. Quần nỉ da cá bo gấu, phối sọc thể thao khỏe khoắn.', 350000, 20, FALSE, FALSE, '/q7.jpg', NULL),
 
--- 4. Áo Khoác Gió A6
-(1, 'Áo Nam A6', 
-'Bất Chấp Mọi Thời Tiết.
-Áo khoác gió A6 được thiết kế với công nghệ trượt nước (Water Repellent), giúp bạn an tâm di chuyển dưới những cơn mưa nhẹ. Lớp lót lưới bên trong giúp thoáng khí, không gây bí bách.
-- Chất liệu: Polyester dù cao cấp, chắn gió, trượt nước.
-- Tiện ích: Túi khóa kéo an toàn, mũ trùm đầu có thể tháo rời.
-- Mùa phù hợp: Thu Đông hoặc đi phượt, dã ngoại.', 
-349000, 10, TRUE, FALSE, '/a6.jpg', 'aa6.glb'),
+-- --- VEST (V Series) ---
+(14, 'Suit Gentleman Black', 'Bộ Suit đen huyền thoại. Form Slimfit ôm dáng, đệm vai vừa phải tạo sự tự tin tuyệt đối trong các sự kiện quan trọng.', 1850000, 0, TRUE, FALSE, '/vest.jpg', NULL),
+(14, 'Suit Business Navy', 'Phong thái doanh nhân. Màu xanh Navy quyền lực, ve áo K-Notch cổ điển, lót lụa cao cấp.', 2100000, 10, FALSE, FALSE, '/vest2.jpg', NULL),
+(14, 'Suit Korea Style Beige', 'Phong cách Oppa Hàn Quốc. Tone màu Be sáng trẻ trung, chất vải lanh pha cotton thoáng mát.', 1600000, 5, TRUE, TRUE, '/vest1.jpg', NULL),
 
--- 5. Áo Khoác Gió Nhẹ A8
-(1, 'Áo Nam A8', 
-'Siêu Nhẹ - Siêu Gọn - Siêu Tiện Lợi.
-Phiên bản nâng cấp của dòng áo khoác gió, A8 tập trung vào trọng lượng siêu nhẹ, có thể gấp gọn vào túi nhỏ. Màu sắc trung tính, hiện đại, phù hợp cho cả nam và nữ.
-- Chất liệu: Vải dù nhăn (Crinkle Nylon) thời thượng.
-- Thiết kế: Bo gấu năng động, khóa kéo YKK siêu bền.
-- Tính năng: Chống tia UV UPF 50+, cản bụi tốt.', 
-349000, 10, TRUE, FALSE, '/a8.jpg', 'a8.glb'),
+-- --- THỜI TRANG NỮ & COMBO (AN, CB Series) ---
+(5, 'Tee Oversize Graphic Art', 'Cá tính và nổi loạn. Form rộng giấu quần cực chất, hình in Graphic nghệ thuật sắc nét.', 199000, 0, TRUE, FALSE, '/an2.jpg', 'AN1.glb'),
+(5, 'Croptop Rib Sexy', 'Quyến rũ mọi ánh nhìn. Thun gân co giãn 4 chiều, ôm sát đường cong cơ thể, khoe khéo vòng eo thon.', 179000, 0, TRUE, FALSE, '/an3.jpg', 'AN3.glb'),
+(6, 'Quần Jean Hack Dáng Wide-Leg', 'Chân dài miên man. Thiết kế lưng cao qua rốn kết hợp ống suông rộng che mọi khuyết điểm chân.', 399000, 15, TRUE, FALSE, '/qn1.jpg', 'QN1.glb'),
+(6, 'Quần Baggy Office Chic', 'Thanh lịch nơi công sở. Dáng Baggy thoải mái phần hông, chất vải mềm rủ không nhăn.', 359000, 5, TRUE, FALSE, '/qn2.jpg', 'QN2.glb'),
+(7, 'Set Phối: Modern Lady', 'Combo công sở hiện đại: Sơ mi lụa trắng + Quần âu đen.', 550000, 10, TRUE, FALSE, '/cb1.jpeg', NULL),
+(7, 'Set Phối: Sweet Weekend', 'Combo dạo phố: Áo kiểu cách điệu + Quần ống rộng màu be.', 520000, 10, TRUE, FALSE, '/cb2.jpg', NULL),
+(7, 'Set Phối: All Black Cool', 'Combo cá tính: Nguyên cây đen huyền bí và cuốn hút.', 490000, 5, FALSE, FALSE, '/cb3.jpg', NULL),
+(7, 'Set Phối: Elegant Boss', 'Combo nữ chủ tịch: Vest cách điệu và quần âu sang trọng.', 650000, 15, FALSE, FALSE, '/cb4.jpeg', NULL),
+(7, 'Set Phối: Summer Vibe', 'Combo mùa hè: Áo sát nách và chân váy xẻ tà.', 590000, 5, TRUE, FALSE, '/cb5.jpeg', NULL),
 
--- 6. Quần Jean Nam Q1
-(2, 'Quần Nam Q1', 
-'Bụi Bặm Và Phong Trần.
-Quần Jean Q1 dáng Slim fit giúp tôn lên đôi chân thon gọn nhưng vẫn đảm bảo sự thoải mái nhờ chất liệu Denim co giãn. Màu wash tự nhiên, bền màu theo thời gian.
-- Chất liệu: Denim 12oz pha Spandex co giãn 2 chiều.
-- Kiểu dáng: Slim fit, ống côn vừa phải.
-- Chi tiết: Đường may nổi chắc chắn, khóa kéo đồng chống rỉ.', 
-399000, 0, TRUE, FALSE, '/q2.jpg', 'Q2.glb'),
+-- --- GIÀY DÉP NAM (D Series - Category 4) ---
+(4, 'Sandal Thể Thao Active Black', 'Dòng sandal thể thao cao cấp, đế đúc êm ái, quai dán chắc chắn. Phù hợp đi bộ, dã ngoại.', 390000, 5, TRUE, FALSE, '/d1.jpg', NULL),
+(4, 'Dép Marvel Edition', 'Phiên bản giới hạn Marvel, phong cách trẻ trung, quai rộng êm chân.', 180000, 0, TRUE, FALSE, '/d2.jpg', NULL),
+(4, 'Sandal Quai Dán Trekking', 'Sandal Hiking/Trekking chống nước, đế cao su chống trượt tuyệt đối. Thiết kế ôm chân, bảo vệ ngón chân.', 450000, 10, FALSE, TRUE, '/d3.jpg', NULL),
+(4, 'Dép Da Quai Chéo Casual', 'Chất liệu da bò thật mềm mại, kiểu dáng quai chéo lịch sự, phù hợp đi làm hoặc cà phê.', 520000, 0, TRUE, FALSE, '/d4.jpg', NULL),
+(4, 'Sneaker White Ultra Boost', 'Giày Sneaker trắng basic, công nghệ đệm Ultra Boost siêu nhẹ, thích hợp cho việc chạy bộ và đi học.', 790000, 15, TRUE, TRUE, '/d5.jpg', NULL),
+(4, 'Giày lười nam', 'Giày lười trắng basic, công nghệ đệm Ultra Boost siêu nhẹ, thích hợp cho việc đi bộ làm văn phòng.', 690000, 15, TRUE, TRUE, '/d7.jpg', 'd7.glb'),
+(4, 'Dép Da Leather Slide', 'Dép quai ngang da bò thật, đế êm chống trơn trượt.', 220000, 0, FALSE, FALSE, '/d1.jpg', NULL), -- Đã có D1, giữ lại Dép Leather Slide nếu muốn phân biệt.
 
--- 7. Quần Short Nam Q2
-(2, 'Quần Nam Q2', 
-'Năng Động Mọi Lúc Mọi Nơi.
-Quần short thể thao Q2 là người bạn đồng hành lý tưởng cho các buổi tập gym, chạy bộ hay mặc nhà. Chất vải Poly lỗ kim giúp thoát mồ hôi cực nhanh.
-- Chất liệu: 95% Polyester, 5% Spandex.
-- Công nghệ: Quick-Dry khô thoáng tức thì.
-- Thiết kế: Lưng chun có dây rút điều chỉnh, túi khóa kéo sâu rộng.', 
-199000, 5, FALSE, FALSE, '/q5.jpg', 'Q5.glb'),
+-- --- GIÀY DÉP NỮ (DN Series - Category 9) ---
+(9, 'Sneaker Nữ Fashion Style', 'Giày Sneaker nữ dáng thời trang, đế cao nhẹ nhàng giúp tôn dáng. Phối màu pastel ngọt ngào.', 650000, 10, TRUE, FALSE, '/dn1.jpg', NULL),
+(9, 'Giày Thể Thao Training Gym', 'Giày tập luyện chuyên dụng, vải dệt kim thoáng khí, hỗ trợ lực tốt khi tập gym hoặc yoga.', 590000, 5, FALSE, TRUE, '/dn2.jpg', NULL),
 
--- 8. Áo Thun Nữ AN1
-(3, 'Áo Nữ AN1', 
-'Phong Cách Oversize Cá Tính.
-Áo thun nữ AN1 với form rộng Oversize đang là hot trend của giới trẻ. Hình in Graphic sắc nét, không bong tróc, tạo điểm nhấn nổi bật cho outfit của bạn.
-- Chất liệu: Cotton 2 chiều dày dặn, đứng form.
-- Kiểu dáng: Oversize rộng rãi, tay lỡ, cổ tròn bo gân.
-- Phối đồ: Hoàn hảo khi mặc kiểu giấu quần hoặc sơ vin vạt trước.', 
-199000, 0, TRUE, FALSE, '/an2.jpg', 'AN1.glb'),
+(9, 'Giày Lười Nữ Slip-on Canvas', 'Giày lười vải Canvas mềm mại, không cần buộc dây, tiện lợi để đi lại hàng ngày.', 390000, 10, FALSE, FALSE, '/dn3.jpg', NULL),
 
--- 9. Áo Croptop Nữ AN2
-(3, 'Áo Nữ AN2', 
-'Quyến Rũ Và Năng Động.
-Áo Croptop AN2 giúp khoe trọn vòng eo con kiến, mang lại vẻ ngoài vừa khỏe khoắn vừa gợi cảm. Chất thun gân co giãn 4 chiều ôm sát cơ thể nhưng không gây khó chịu.
-- Chất liệu: Thun Rib (thun gân) co giãn cực tốt.
-- Thiết kế: Cổ vuông vintage hoặc cổ tròn basic, tay ngắn.
-- Màu sắc: Các tông màu Pastel ngọt ngào, dễ phối đồ.', 
-179000, 0, TRUE, FALSE, '/an3.jpg', 'AN3.glb'),
+-- --- PHỤ KIỆN ---
+(10, 'Clutch Cầm Tay Pearl White', 'Ví cầm tay nữ màu trắng ngọc trai, khóa mạ vàng sang trọng.', 250000, 0, FALSE, TRUE, '/v1.jpg', 'v1.glb'),
+(10, 'Ví Da Bò Classic Brown', 'Da bò thật 100%, càng dùng càng bóng, bền bỉ theo thời gian.', 350000, 10, FALSE, FALSE, '/v2.jpg', 'v2.glb'),
+(10, 'Mini Wallet Pastel Pink', 'Nhỏ gọn xinh xắn, màu hồng phấn ngọt ngào.', 199000, 5, TRUE, FALSE, '/v3.jpg', 'v3.glb'),
+(10, 'Ví Gập Baby Blue', 'Màu xanh baby blue dịu mắt, nhiều ngăn đựng thẻ tiện lợi.', 199000, 0, FALSE, FALSE, '/v4.jpg', 'v1.glb'),
+(11, 'Cap Streetwear Black', 'Nón kết đen thêu Logo nổi, phong cách đường phố.', 150000, 0, TRUE, FALSE, '/n1.jpg', 'n1.glb'),
+(11, 'Cap Minimalist White', 'Nón kết trắng đơn giản, dễ phối đồ.', 150000, 0, FALSE, FALSE, '/n2.jpg', 'n2.glb');
 
--- 10. Quần Jean Nữ QN1
-(4, 'Quần Nữ QN1', 
-'Hack Dáng Thần Sầu.
-Quần Jean ống rộng (Wide Leg) QN1 là vũ khí bí mật giúp đôi chân trông dài miên man. Lưng cao qua rốn giúp che khuyết điểm vòng 2 hiệu quả.
-- Chất liệu: Jeans Cotton không giãn, giữ form ống đứng chuẩn.
-- Thiết kế: Ống suông rộng, lai quần tưa hoặc may gấu.
-- Phong cách: Retro, Vintage, Y2K.', 
-399000, 15, TRUE, FALSE, '/qn1.jpg', 'QN1.glb'),
 
--- 11. Quần Tây Nữ QN2
-(4, 'Quần Nữ QN2', 
-'Thanh Lịch Nơi Công Sở.
-Quần tây QN2 mang đến vẻ ngoài chuyên nghiệp, chỉn chu cho các quý cô văn phòng. Thiết kế Baggy thoải mái ở hông và thu nhỏ dần về ống, phù hợp mọi dáng người.
-- Chất liệu: Vải Tuypsi Hàn Quốc, mềm, rủ, không nhăn.
-- Kiểu dáng: Baggy lưng cao, xếp ly nhẹ phía trước.
-- Chi tiết: Túi chéo tiện lợi, đỉa quần tinh tế để đeo thắt lưng.', 
-359000, 5, TRUE, FALSE, '/qn2.jpg', 'QN2.glb');
-
--- Nhóm 2: Không có Model 3D (Cột model_3d sẽ tự NULL)
-INSERT INTO Products (category_id, product_name, description, base_price, discount_percent, is_hot, is_bestseller, thumbnail_url) VALUES
-(1, 'Áo Nam A4', 'Áo sweater nam basic', 329000, 5, FALSE, FALSE, '/a6.jpg'),
-(1, 'Áo Nam A5', 'Áo khoác gió', 349000, 10, TRUE, FALSE, '/a5.jpg'),
-(1, 'Áo Nam A9', 'Áo thun trắng trơn', 150000, 0, FALSE, FALSE, '/a9.jpg'),
-(5, 'Combo CB1', 'Set áo và váy nữ', 499000, 10, TRUE, FALSE, '/cb1.jpeg'),
-(5, 'Combo CB2', 'Combo thể thao', 459000, 10, TRUE, FALSE, '/cb2.jpg'),
-(5, 'Combo CB3', 'Set đồ dạo phố', 419000, 5, TRUE, FALSE, '/cb3.jpg'),
-(5, 'Combo CB4', 'Combo công sở', 559000, 15, TRUE, FALSE, '/cb4.jpeg'),
-(5, 'Combo CB5', 'Set váy áo nhẹ nhàng', 489000, 5, FALSE, FALSE, '/cb5.jpeg'),
-(5, 'Combo CB6', 'Combo đồ ngủ', 299000, 0, FALSE, FALSE, '/cb6.jpg');
-
--- 4. Chèn Product_Images (Dùng SELECT để lấy đúng ID sản phẩm)
+-- 3. CHÈN PRODUCT_IMAGES (Ánh xạ Tên Mới -> File Ảnh Cũ)
 INSERT INTO Product_Images (product_id, image_url, is_main)
 SELECT p.product_id, t.url, t.is_main
 FROM Products p
 JOIN (
-    -- Áo Nam A1
-    SELECT 'Áo Nam A1' as name, '/a1.jpg' as url, TRUE as is_main
-    UNION ALL SELECT 'Áo Nam A1', '/a11.jpg', FALSE
-    UNION ALL SELECT 'Áo Nam A1', '/a111.jpg', FALSE
-    -- Áo Nam A2
-    UNION ALL SELECT 'Áo Nam A2', '/a2.jpg', TRUE
-    UNION ALL SELECT 'Áo Nam A2', '/a22.jpg', FALSE
-    UNION ALL SELECT 'Áo Nam A2', '/a222.jpg', FALSE
-    -- Áo Nam A3
-    UNION ALL SELECT 'Áo Nam A3', '/a3.jpg', TRUE
-    UNION ALL SELECT 'Áo Nam A3', '/a33.jpg', FALSE
-    UNION ALL SELECT 'Áo Nam A3', '/a333.jpg', FALSE
-    -- Áo Nam A4
-    UNION ALL SELECT 'Áo Nam A4', '/a4.jpg', TRUE
-    UNION ALL SELECT 'Áo Nam A4', '/a44.jpg', FALSE
-    UNION ALL SELECT 'Áo Nam A4', '/a444.jpg', FALSE
-    -- Áo Nam A5
-    UNION ALL SELECT 'Áo Nam A5', '/a5.jpg', TRUE
-    UNION ALL SELECT 'Áo Nam A5', '/a55.jpg', FALSE
-    UNION ALL SELECT 'Áo Nam A5', '/a555.jpg', FALSE
-    -- Áo Nữ AN1
-    UNION ALL SELECT 'Áo Nữ AN1', '/an1.jpg', TRUE
-    UNION ALL SELECT 'Áo Nữ AN1', '/an11.jpg', FALSE
-    UNION ALL SELECT 'Áo Nữ AN1', '/an111.jpg', FALSE
-    -- Quần Nữ QN1
-    UNION ALL SELECT 'Quần Nữ QN1', '/qn1.jpg', TRUE
-    UNION ALL SELECT 'Quần Nữ QN1', '/qn11.jpg', FALSE
-    UNION ALL SELECT 'Quần Nữ QN1', '/qn111.jpg', FALSE
-    -- Combo CB1
-    UNION ALL SELECT 'Combo CB1', '/cb1.jpg', TRUE
-    UNION ALL SELECT 'Combo CB1', '/cb11.jpg', FALSE
-    UNION ALL SELECT 'Combo CB1', '/cb111.jpg', FALSE
+    -- Áo A1, A2, A3, A5, A6, A7, A8, A9 (Đã kiểm tra và chuẩn hóa)
+    SELECT 'T-Shirt Cotton Compact Premium' as name, '/a1.jpg' as url, TRUE as is_main
+    UNION ALL SELECT 'T-Shirt Cotton Compact Premium', '/a11.jpg', FALSE
+    UNION ALL SELECT 'T-Shirt Cotton Compact Premium', '/a111.jpg', FALSE
+    UNION ALL SELECT 'Polo Signature Teal Blue', '/a2.jpg', TRUE
+    UNION ALL SELECT 'Polo Signature Teal Blue', '/a22.jpg', FALSE
+    UNION ALL SELECT 'Polo Signature Teal Blue', '/a222.jpg', FALSE
+    UNION ALL SELECT 'Sơ Mi Bamboo Slimfit', '/a3.jpg', TRUE
+    UNION ALL SELECT 'Sơ Mi Bamboo Slimfit', '/a33.jpg', FALSE
+    UNION ALL SELECT 'Sơ Mi Bamboo Slimfit', '/a333.jpg', FALSE
+    UNION ALL SELECT 'Sơ Mi Flannel Streetwear', '/a5.jpg', TRUE
+    UNION ALL SELECT 'Sơ Mi Flannel Streetwear', '/a55.jpg', FALSE
+    UNION ALL SELECT 'Sơ Mi Flannel Streetwear', '/a555.jpg', FALSE
+    UNION ALL SELECT 'Polo Smart Casual Pastel', '/a6.jpg', TRUE
+    UNION ALL SELECT 'Polo Smart Casual Pastel', '/a66.jpg', FALSE
+    UNION ALL SELECT 'Polo Smart Casual Pastel', '/a666.jpg', FALSE
+    UNION ALL SELECT 'Polo Luxury Black Gold', '/a7.jpg', TRUE
+    UNION ALL SELECT 'Polo Luxury Black Gold', '/a77z.jpg', FALSE
+    UNION ALL SELECT 'Polo Luxury Black Gold', '/a777.jpg', FALSE
+    UNION ALL SELECT 'Polo Terracotta Trendy', '/a8.jpg', TRUE
+    UNION ALL SELECT 'Polo Terracotta Trendy', '/a88.jpg', FALSE
+    UNION ALL SELECT 'Polo Terracotta Trendy', '/a888.jpg', FALSE
+    UNION ALL SELECT 'Polo Classic Blue Basic', '/a9.jpg', TRUE
+    UNION ALL SELECT 'Polo Classic Blue Basic', '/a99.jpg', FALSE
+    UNION ALL SELECT 'Polo Classic Blue Basic', '/a999.jpg', FALSE
+
+    -- Quần Q1, Q2, Q3, Q4, Q6, Q7 (Đã kiểm tra và chuẩn hóa)
+    UNION ALL SELECT 'Quần Âu Tuyết Mưa Minimalist', '/q1.jpg', TRUE
+    UNION ALL SELECT 'Quần Âu Tuyết Mưa Minimalist', '/q11.jpg', FALSE
+    UNION ALL SELECT 'Quần Âu Tuyết Mưa Minimalist', '/q111.jpg', FALSE
+    UNION ALL SELECT 'Quần Kaki Olive Slimfit', '/q2.jpg', TRUE
+    UNION ALL SELECT 'Quần Kaki Olive Slimfit', '/q22.jpg', FALSE
+    UNION ALL SELECT 'Quần Kaki Olive Slimfit', '/q222.jpg', FALSE
+    UNION ALL SELECT 'Short Gió Active Black', '/q3.jpg', TRUE
+    UNION ALL SELECT 'Short Gió Active Black', '/q33.jpg', FALSE
+    UNION ALL SELECT 'Short Gió Active Black', '/q333.jpg', FALSE
+    UNION ALL SELECT 'Short Kaki Grey Modern', '/q4.jpg', TRUE
+    UNION ALL SELECT 'Short Kaki Grey Modern', '/q44.jpg', FALSE
+    UNION ALL SELECT 'Short Kaki Grey Modern', '/q444.jpg', FALSE
+    UNION ALL SELECT 'Quần Âu Grey Stripe', '/q6.jpg', TRUE
+    UNION ALL SELECT 'Quần Âu Grey Stripe', '/q66.jpg', FALSE
+    UNION ALL SELECT 'Quần Âu Grey Stripe', '/q666.jpg', FALSE
+    UNION ALL SELECT 'Jogger Sporty Stripe', '/q7.jpg', TRUE
+    UNION ALL SELECT 'Jogger Sporty Stripe', '/q77.jpg', FALSE
+    UNION ALL SELECT 'Jogger Sporty Stripe', '/q777.jpg', FALSE
+
+    -- Vest
+    UNION ALL SELECT 'Suit Business Navy', '/vest2.jpg', TRUE
+    UNION ALL SELECT 'Suit Business Navy', '/vest22.jpg', FALSE
+    UNION ALL SELECT 'Suit Business Navy', '/vest222.jpg', FALSE
+    UNION ALL SELECT 'Suit Korea Style Beige', '/vest1.jpg', TRUE
+    UNION ALL SELECT 'Suit Korea Style Beige', '/vest11.jpg', FALSE
+    UNION ALL SELECT 'Suit Korea Style Beige', '/vest111.jpg', FALSE
+
+    -- Combo
+    UNION ALL SELECT 'Set Phối: Modern Lady', '/cb1.jpeg', FALSE
+    UNION ALL SELECT 'Set Phối: Modern Lady', '/cb11.jpeg', TRUE
+    UNION ALL SELECT 'Set Phối: Modern Lady', '/cb111.jpeg', FALSE
+    UNION ALL SELECT 'Set Phối: Sweet Weekend', '/cb2.jpg', TRUE
+    UNION ALL SELECT 'Set Phối: Sweet Weekend', '/cb22.jpg', FALSE
+    UNION ALL SELECT 'Set Phối: Sweet Weekend', '/cb222.jpg', FALSE
+    UNION ALL SELECT 'Set Phối: All Black Cool', '/cb3.jpg', TRUE
+    UNION ALL SELECT 'Set Phối: All Black Cool', '/cb33.jpg', FALSE
+    UNION ALL SELECT 'Set Phối: All Black Cool', '/cb333.jpg', FALSE
+    UNION ALL SELECT 'Set Phối: Elegant Boss', '/cb4.jpeg', FALSE
+    UNION ALL SELECT 'Set Phối: Elegant Boss', '/cb44.jpeg', TRUE
+    UNION ALL SELECT 'Set Phối: Elegant Boss', '/cb444.jpeg', FALSE
+    UNION ALL SELECT 'Set Phối: Summer Vibe', '/cb5.jpeg', TRUE
+    UNION ALL SELECT 'Set Phối: Summer Vibe', '/cb55.jpeg', FALSE
+    UNION ALL SELECT 'Set Phối: Summer Vibe', '/cb555.jpeg', FALSE
+
+    -- Giày Dép Nam (D Series)
+    UNION ALL SELECT 'Sandal Thể Thao Active Black', '/d1.jpg', TRUE
+    UNION ALL SELECT 'Sandal Thể Thao Active Black', '/d11.jpg', FALSE
+    UNION ALL SELECT 'Sandal Thể Thao Active Black', '/d111.jpg', FALSE
+    UNION ALL SELECT 'Dép Marvel Edition', '/d2.jpg', TRUE
+    UNION ALL SELECT 'Dép Marvel Edition', '/d22.jpg', FALSE
+    UNION ALL SELECT 'Dép Marvel Edition', '/d222.jpg', FALSE
+    UNION ALL SELECT 'Sandal Quai Dán Trekking', '/d3.jpg', TRUE
+    UNION ALL SELECT 'Sandal Quai Dán Trekking', '/d33.jpg', FALSE
+    UNION ALL SELECT 'Sandal Quai Dán Trekking', '/d333.jpg', FALSE
+    UNION ALL SELECT 'Dép Da Quai Chéo Casual', '/d4.jpg', TRUE
+    UNION ALL SELECT 'Dép Da Quai Chéo Casual', '/d44.jpg', FALSE
+    UNION ALL SELECT 'Dép Da Quai Chéo Casual', '/d444.jpg', FALSE
+    UNION ALL SELECT 'Sneaker White Ultra Boost', '/d5.jpg', TRUE
+    UNION ALL SELECT 'Sneaker White Ultra Boost', '/d55.jpg', FALSE
+    UNION ALL SELECT 'Sneaker White Ultra Boost', '/d555.jpg', FALSE
+       UNION ALL SELECT 'Giày lười nam', '/d7.jpg', TRUE
+    UNION ALL SELECT 'Giày lười nam', '/d77.jpg', FALSE
+    UNION ALL SELECT 'Giày lười nam', '/d777.jpg', FALSE
+    
+    -- Giày Dép Nữ (DN Series)
+    UNION ALL SELECT 'Sneaker Nữ Fashion Style', '/dn1.jpg', TRUE
+    UNION ALL SELECT 'Sneaker Nữ Fashion Style', '/dn11.jpg', FALSE
+    UNION ALL SELECT 'Sneaker Nữ Fashion Style', '/dn111.jpg', FALSE
+    UNION ALL SELECT 'Giày Thể Thao Training Gym', '/dn2.jpg', TRUE
+    UNION ALL SELECT 'Giày Thể Thao Training Gym', '/dn22.jpg', FALSE
+    UNION ALL SELECT 'Giày Thể Thao Training Gym', '/dn222.jpg', FALSE
+    UNION ALL SELECT 'Sneaker Nữ Vintage Cream', '/dn3.jpg', TRUE
+    UNION ALL SELECT 'Sneaker Nữ Vintage Cream', '/dn33.jpg', FALSE
+    UNION ALL SELECT 'Sneaker Nữ Vintage Cream', '/dn333.jpg', FALSE
+    
+    -- Ví
+    UNION ALL SELECT 'Clutch Cầm Tay Pearl White', '/v1.jpg', TRUE
+    UNION ALL SELECT 'Clutch Cầm Tay Pearl White', '/v11.jpg', FALSE
+    UNION ALL SELECT 'Ví Da Bò Classic Brown', '/v2.jpg', TRUE
+    UNION ALL SELECT 'Ví Da Bò Classic Brown', '/v22.jpg', FALSE
+    UNION ALL SELECT 'Mini Wallet Pastel Pink', '/v3.jpg', TRUE
+    UNION ALL SELECT 'Mini Wallet Pastel Pink', '/v33.jpg', FALSE
+    UNION ALL SELECT 'Mini Wallet Pastel Pink', '/v333.jpg', FALSE
+
 ) t ON p.product_name = t.name;
 
--- 5. Chèn Product_Variants (Dùng SELECT để lấy đúng ID sản phẩm)
+-- 4. CHÈN PRODUCT_VARIANTS (Biến thể)
 INSERT INTO Product_Variants (product_id, color, size, stock, sku)
 SELECT p.product_id, t.color, t.size, t.stock, t.sku
 FROM Products p
 JOIN (
-    -- Áo Nam A1
-    SELECT 'Áo Nam A1' as name, 'Trắng' as color, 'M' as size, 50 as stock, 'A1-M-TRANG' as sku
-    UNION ALL SELECT 'Áo Nam A1', 'Trắng', 'L', 40, 'A1-L-TRANG'
-    UNION ALL SELECT 'Áo Nam A1', 'Đen', 'M', 60, 'A1-M-DEN'
-    UNION ALL SELECT 'Áo Nam A1', 'Đen', 'L', 45, 'A1-L-DEN'
-    -- Áo Nam A2
-    UNION ALL SELECT 'Áo Nam A2', 'Đỏ', 'M', 35, 'A2-M-DO'
-    UNION ALL SELECT 'Áo Nam A2', 'Đỏ', 'L', 30, 'A2-L-DO'
-    UNION ALL SELECT 'Áo Nam A2', 'Xanh Navy', 'M', 45, 'A2-M-XN'
-    UNION ALL SELECT 'Áo Nam A2', 'Xanh Navy', 'L', 40, 'A2-L-XN'
-    -- Áo Nam A3
-    UNION ALL SELECT 'Áo Nam A3', 'Trắng', 'M', 50, 'A3-M-TRANG'
-    UNION ALL SELECT 'Áo Nam A3', 'Trắng', 'L', 45, 'A3-L-TRANG'
-    -- Quần Nam Q1
-    UNION ALL SELECT 'Quần Nam Q1', 'Xanh Đậm', '29', 40, 'Q1-29-XDAM'
-    UNION ALL SELECT 'Quần Nam Q1', 'Xanh Đậm', '31', 35, 'Q1-31-XDAM'
-    UNION ALL SELECT 'Quần Nam Q1', 'Đen', '29', 45, 'Q1-29-DEN'
-    UNION ALL SELECT 'Quần Nam Q1', 'Đen', '31', 40, 'Q1-31-DEN'
-    -- Áo Nữ AN1
-    UNION ALL SELECT 'Áo Nữ AN1', 'Hồng', 'S', 70, 'AN1-S-HONG'
-    UNION ALL SELECT 'Áo Nữ AN1', 'Hồng', 'M', 65, 'AN1-M-HONG'
-    UNION ALL SELECT 'Áo Nữ AN1', 'Trắng', 'S', 75, 'AN1-S-TRANG'
-    UNION ALL SELECT 'Áo Nữ AN1', 'Trắng', 'M', 80, 'AN1-M-TRANG'
-    -- Combo CB1
-    UNION ALL SELECT 'Combo CB1', 'Trắng', 'S', 20, 'CB1-S-TRANG'
-    UNION ALL SELECT 'Combo CB1', 'Trắng', 'M', 18, 'CB1-M-TRANG'
+    -- Áo Nam A1, A2, Q1, Vest V1, CB1, Ví V1, V2 (Đã chuẩn hóa)
+    SELECT 'T-Shirt Cotton Compact Premium' as name, 'Trắng' as color, 'M' as size, 50 as stock, 'A1-TRANG-M' as sku
+    UNION ALL SELECT 'T-Shirt Cotton Compact Premium', 'Trắng', 'L', 50, 'A1-TRANG-L'
+    UNION ALL SELECT 'T-Shirt Cotton Compact Premium', 'Đen', 'M', 50, 'A1-DEN-M'
+    UNION ALL SELECT 'Polo Signature Teal Blue', 'Xanh Teal', 'M', 30, 'A2-TEAL-M'
+    UNION ALL SELECT 'Polo Signature Teal Blue', 'Xanh Teal', 'L', 30, 'A2-TEAL-L'
+    UNION ALL SELECT 'Quần Âu Tuyết Mưa Minimalist', 'Đen', '29', 40, 'Q1-DEN-29'
+    UNION ALL SELECT 'Quần Âu Tuyết Mưa Minimalist', 'Đen', '30', 40, 'Q1-DEN-30'
+    UNION ALL SELECT 'Quần Âu Tuyết Mưa Minimalist', 'Đen', '31', 40, 'Q1-DEN-31'
+    UNION ALL SELECT 'Suit Gentleman Black', 'Đen', '48', 20, 'V1-DEN-48'
+    UNION ALL SELECT 'Suit Gentleman Black', 'Đen', '50', 20, 'V1-DEN-50'
+    UNION ALL SELECT 'Set Phối: Modern Lady', 'Mặc định', 'FreeSize', 20, 'CB1-FREE'
+    UNION ALL SELECT 'Clutch Cầm Tay Pearl White', 'Trắng', 'OneSize', 100, 'V1-TRANG'
+    UNION ALL SELECT 'Ví Da Bò Classic Brown', 'Nâu', 'OneSize', 100, 'V2-NAU'
+    
+    -- Giày Dép Nam (D Series)
+    UNION ALL SELECT 'Sandal Thể Thao Active Black' as name, 'Đen' as color, '40' as size, 50 as stock, 'D1-DEN-40' as sku
+    UNION ALL SELECT 'Sandal Thể Thao Active Black', 'Đen', '42', 50, 'D1-DEN-42'
+    UNION ALL SELECT 'Dép Marvel Edition', 'Đen', '41', 30, 'D2-DEN-41'
+    UNION ALL SELECT 'Dép Marvel Edition', 'Đen', '43', 30, 'D2-DEN-43'
+    
+    -- Giày Dép Nữ (DN Series)
+    UNION ALL SELECT 'Sneaker Nữ Fashion Style', 'Hồng Pastel', '37', 40, 'DN1-HONG-37'
+    UNION ALL SELECT 'Sneaker Nữ Fashion Style', 'Xanh Mint', '38', 40, 'DN1-MINT-38'
+    UNION ALL SELECT 'Giày Thể Thao Training Gym', 'Đen', '36', 60, 'DN2-DEN-36'
+    UNION ALL SELECT 'Giày Thể Thao Training Gym', 'Đen', '37', 60, 'DN2-DEN-37'
+
 ) t ON p.product_name = t.name;
 
--- 6. Chèn Variants mặc định cho các sản phẩm còn lại (để tránh lỗi giỏ hàng)
+-- 5. CHÈN VARIANT MẶC ĐỊNH (Quan trọng để các sản phẩm còn lại không lỗi)
 INSERT INTO Product_Variants (product_id, color, size, stock, sku)
-SELECT p.product_id, 'Mặc định', 'FreeSize', 100, CONCAT('DEF-', p.product_id)
+SELECT p.product_id, 'Mặc định', 'FreeSize', 50, CONCAT('DEF-', p.product_id)
 FROM Products p
 LEFT JOIN Product_Variants pv ON p.product_id = pv.product_id
 WHERE pv.variant_id IS NULL;
 
-INSERT INTO Events (title, content, image_url, event_date, is_published, created_by)
-VALUES
--- Sự kiện có sẵn của bạn (Giữ nguyên)
-('Ra Mắt Bộ Sưu Tập Xuân 2025', 'Khám phá bộ sưu tập xuân mới với các thiết kế độc đáo, mở ra kỷ nguyên thời trang cá nhân hóa.', 'sk1.jpg', '2026-02-15', TRUE, NULL),
-('Flash Sale Mừng Năm Mới', 'Giảm giá lên đến 70% các sản phẩm Best-seller, chỉ áp dụng trong 48 giờ. Cơ hội không thể bỏ lỡ!', 'sk2.webp', '2026-01-01', TRUE, NULL),
-
--- Sự kiện mới thêm
-('Giới Thiệu Bộ Sưu Tập Hè "Sunset Vibe"', 
- 'Tận hưởng những thiết kế phóng khoáng, màu sắc rực rỡ và chất liệu linen cao cấp cho mùa hè rực lửa. Khám phá ngay Drop Hè 2026.', 
- 'sk3.png', 
- '2026-06-10', 
- TRUE, NULL
-),
-('Tuyển Chọn Gương Mặt Đại Diện Mùa Thu', 
- 'Tìm kiếm những người mẫu tài năng, cá tính mạnh mẽ cho chiến dịch quảng bá bộ sưu tập Thu Đông 2026. Đăng ký ngay để tỏa sáng!', 
- 'sk4.jpg', 
- '2026-08-05', 
- TRUE, NULL
-),
-('Sự Kiện VIP Private Viewing & Sale', 
- 'Cơ hội mua sắm độc quyền với ưu đãi 40% dành riêng cho thành viên hạng Bạc trở lên. Xem trước bộ sưu tập mới nhất trước khi ra mắt công chúng.', 
- 'sk5.png', 
- '2025-12-20', 
- TRUE, NULL
-),
-('Ưu Đãi Đặc Biệt Ngày 8/3', 
- 'Tặng kèm voucher 200K cho hóa đơn từ 1 triệu đồng. Chương trình áp dụng cho tất cả các khách hàng nữ nhân ngày Quốc tế Phụ nữ.', 
- 'sk6.jpg', 
- '2026-03-08', 
- TRUE, NULL
-);
--- 8. Chèn Hot Keywords
+-- 8. CHÈN HOT KEYWORDS (Từ khóa)
 INSERT INTO Hot_Keywords (keyword_text, description, search_count, is_active) VALUES
-('áo thun unisex', 'Áo thun nam nữ', 150, TRUE),
-('giảm giá 50%', 'Sản phẩm sale', 220, TRUE),
-('quần jean', 'Các loại quần jean', 3520, TRUE),
-('best seller', 'Sản phẩm bán chạy', 30, TRUE),
-('combo siêu rẻ', 'Combo tiết kiệm', 95, TRUE);
+('áo thun unisex', 'Áo thun nam nữ form rộng', 1500, TRUE),
+('giảm giá sốc', 'Các sản phẩm đang sale mạnh', 2200, TRUE),
+('quần jean', 'Các loại quần jean, denim', 3520, TRUE),
+('best seller', 'Sản phẩm bán chạy nhất tháng', 5000, TRUE),
+('combo tiết kiệm', 'Mua theo set giá rẻ hơn', 950, TRUE);
 
-
--- 9. Chèn Keyword Mapping (Dùng SELECT để lấy đúng ID sản phẩm)
+-- 9. CHÈN KEYWORD MAPPING (Map vào Tên Mới)
 INSERT INTO Keyword_Product_Mapping (keyword_id, product_id, priority)
 SELECT k.keyword_id, p.product_id, t.priority
 FROM Hot_Keywords k
 JOIN Products p
 JOIN (
-    SELECT 'áo thun unisex' as k_text, 'Áo Nam A1' as p_name, 20 as priority
-    UNION ALL SELECT 'áo thun unisex', 'Áo Nữ AN1', 20
-    UNION ALL SELECT 'quần jean', 'Quần Nam Q1', 15
-    UNION ALL SELECT 'quần jean', 'Quần Nữ QN1', 15
-    UNION ALL SELECT 'combo siêu rẻ', 'Combo CB1', 15
+    -- Áo thun
+    SELECT 'áo thun unisex' as k_text, 'T-Shirt Cotton Compact Premium' as p_name, 1 as priority
+    UNION ALL SELECT 'áo thun unisex', 'Tee Oversize Graphic Art', 2
     
+    -- Giảm giá
+    UNION ALL SELECT 'giảm giá sốc', 'Jogger Sporty Stripe', 1
+    UNION ALL SELECT 'giảm giá sốc', 'Polo Luxury Black Gold', 2
+    UNION ALL SELECT 'giảm giá sốc', 'Quần Jean Hack Dáng Wide-Leg', 3
+    
+    -- Quần Jean
+    UNION ALL SELECT 'quần jean', 'Quần Jean Hack Dáng Wide-Leg', 1
+    UNION ALL SELECT 'quần jean', 'Quần Kaki Olive Slimfit', 2
+    
+    -- Best Seller
+    UNION ALL SELECT 'best seller', 'Polo Luxury Black Gold', 1
+    UNION ALL SELECT 'best seller', 'Quần Âu Tuyết Mưa Minimalist', 2
+    UNION ALL SELECT 'best seller', 'Polo Signature Teal Blue', 3
+    UNION ALL SELECT 'best seller', 'Clutch Cầm Tay Pearl White', 4
+    UNION ALL SELECT 'best seller', 'Suit Korea Style Beige', 5
+    
+    -- Combo
+    UNION ALL SELECT 'combo tiết kiệm', 'Set Phối: Modern Lady', 1
+    UNION ALL SELECT 'combo tiết kiệm', 'Set Phối: Sweet Weekend', 2
+    UNION ALL SELECT 'combo tiết kiệm', 'Set Phối: All Black Cool', 3
+    UNION ALL SELECT 'combo tiết kiệm', 'Set Phối: Elegant Boss', 4
+    UNION ALL SELECT 'combo tiết kiệm', 'Set Phối: Summer Vibe', 5
+
 ) t ON k.keyword_text = t.k_text AND p.product_name = t.p_name;
+
+-- 10. CHÈN EVENTS (Sự kiện)
+INSERT INTO Events (title, content, image_url, event_date, is_published, created_by)
+VALUES
+('Ra Mắt Bộ Sưu Tập Xuân 2025', 'Khám phá bộ sưu tập xuân mới với các thiết kế độc đáo, mở ra kỷ nguyên thời trang cá nhân hóa.', 'sk1.jpg', '2026-02-15', TRUE, NULL),
+('Flash Sale Mừng Năm Mới', 'Giảm giá lên đến 70% các sản phẩm Best-seller, chỉ áp dụng trong 48 giờ. Cơ hội không thể bỏ lỡ!', 'sk2.webp', '2026-01-01', TRUE, NULL),
+('Giới Thiệu Bộ Sưu Tập Hè "Sunset Vibe"', 'Tận hưởng những thiết kế phóng khoáng, màu sắc rực rỡ và chất liệu linen cao cấp cho mùa hè rực lửa. Khám phá ngay Drop Hè 2026.', 'sk3.png', '2026-06-10', TRUE, NULL),
+('Tuyển Chọn Gương Mặt Đại Diện Mùa Thu', 'Tìm kiếm những người mẫu tài năng, cá tính mạnh mẽ cho chiến dịch quảng bá bộ sưu tập Thu Đông 2026. Đăng ký ngay để tỏa sáng!', 'sk4.jpg', '2026-08-05', TRUE, NULL),
+('Sự Kiện VIP Private Viewing & Sale', 'Cơ hội mua sắm độc quyền với ưu đãi 40% dành riêng cho thành viên hạng Bạc trở lên. Xem trước bộ sưu tập mới nhất trước khi ra mắt công chúng.', 'sk5.png', '2025-12-20', TRUE, NULL),
+('Ưu Đãi Đặc Biệt Ngày 8/3', 'Tặng kèm voucher 200K cho hóa đơn từ 1 triệu đồng. Chương trình áp dụng cho tất cả các khách hàng nữ nhân ngày Quốc tế Phụ nữ.', 'sk6.jpg', '2026-03-08', TRUE, NULL);
+
 

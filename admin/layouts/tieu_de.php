@@ -279,21 +279,20 @@ $logo_icons = get_logo_icons($current_page);
         <?php
         $menu_items = [
             'indexadmin.php'        => ['Bảng điều khiển', 'fa-gauge'],
-            'quan_ly_danh_muc.php'  => ['QL Danh mục', 'fa-folder-tree'],
-            'quan_ly_san_pham.php'  => ['QL Sản phẩm', 'fa-box'],
-            'quan_ly_bien_the.php'  => ['QL Biến thể', 'fa-tags'],
-            'quan_ly_ton_kho.php'   => ['QL Tồn kho', 'fa-warehouse'],
-            'quan_ly_don_hang.php'  => ['QL Đơn hàng', 'fa-receipt'],
-            'chi_tiet_don_hang.php' => ['Chi tiết Đơn', 'fa-file-invoice'],
-            'quan_ly_tu_khoa.php'   => ['Từ khóa SEO', 'fa-search'],
+            'quan_ly_danh_muc.php'  => [' Danh mục', 'fa-folder-tree'],
+            'quan_ly_san_pham.php'  => [' Sản phẩm', 'fa-box'],
+            'quan_ly_bien_the.php'  => [' Biến thể', 'fa-tags'],
+            'quan_ly_ton_kho.php'   => [' Tồn kho', 'fa-warehouse'],
+            'quan_ly_tu_khoa.php'   => ['Từ khóa HOT', 'fa-search'],
             'quan_ly_su_kien.php'   => ['Sự kiện/Tin', 'fa-calendar-check'],
             'quan_ly_ma_giam_gia.php' => ['Mã giảm giá', 'fa-ticket-alt'],
-            'quan_ly_nguoi_dung.php'=> ['QL Người dùng', 'fa-users'],
-            'quan_ly_danh_gia.php'  => ['QL Đánh giá', 'fa-star'],
-            'quan_ly_thanh_toan.php' => ['Giao dịch', 'fa-credit-card'],
+            'quan_ly_nguoi_dung.php'=> [' Người dùng', 'fa-users'],
+            'quan_ly_danh_gia.php'  => [' Đánh giá', 'fa-star'],
+           
             'quan_ly_diem_tich_luy.php' => ['Điểm Tích lũy', 'fa-coins'],
-            'quan_ly_lien_he.php'   => ['Hộp thư Liên hệ', 'fa-envelope'],
-            'nhat_ky_admin.php'     => ['Nhật ký', 'fa-scroll'],
+            'quan_ly_don_hang.php'  => [' Đơn hàng', 'fa-receipt'],
+           
+            
         ];
 
         foreach ($menu_items as $file => $data) {

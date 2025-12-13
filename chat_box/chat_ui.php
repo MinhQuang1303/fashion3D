@@ -179,10 +179,10 @@ $rootUrl = get_site_root();
 
     <div class="tags-area">
         <span class="tag-title"><i class="fas fa-bolt"></i> Gợi ý nhanh:</span>
-        <span class="tag-item" onclick="quickChat('Áo sơ mi')">Áo sơ mi</span>
-        <span class="tag-item" onclick="quickChat('Váy đầm')">Váy đầm</span>
-        <span class="tag-item" onclick="quickChat('Quần tây')">Quần tây</span>
-        <span class="tag-item" onclick="quickChat('Túi xách')">Túi xách</span>
+        <span class="tag-item" onclick="quickChat('Giày')">Giày</span>
+        <span class="tag-item" onclick="quickChat('suit')">Đồ vest nam sang trọng</span>
+        <span class="tag-item" onclick="quickChat('Quần')">Quần tây</span>
+        <span class="tag-item" onclick="quickChat('Ví')">Ví</span>
     </div>
 
     <div class="chat-content" id="chat-content-area">
