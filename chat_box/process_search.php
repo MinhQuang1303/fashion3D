@@ -1,80 +1,103 @@
 <?php
 /**
  * File: chat_box/process_search.php
- * Xử lý tìm kiếm sản phẩm từ AJAX và trả về JSON.
- * Đã FIX logic đường dẫn ảnh thumbnail_url
+ * Chức năng: Tìm kiếm SQL + "AI Giả Lập" (Delay 3s + Fix lỗi giá)
  */
+
 require_once __DIR__ . '/../includes/ket_noi_db.php';
 header("Content-Type: application/json; charset=utf-8");
 
+// --- 1. TẠO ĐỘ TRỄ 3 GIÂY (GIẢ LẬP SUY NGHĨ) ---
+sleep(3); 
+// -----------------------------------------------
+
 if (empty($_POST['message'])) {
-    // Không cần exit 400 vì đây là chat box, chỉ cần trả về thông báo
-    echo json_encode([
-        "status" => "error",
-        "message" => "Vui lòng nhập từ khóa tìm kiếm."
-    ]);
+    echo json_encode(["status" => "error", "message" => "Bạn chưa nhập câu hỏi."]);
     exit;
 }
 
-$keyword = "%" . trim($_POST['message']) . "%";
+$userMessage = trim($_POST['message']);
+$keyword = "%" . $userMessage . "%";
 
-$sql = "SELECT 
-            product_id,
-            product_name,
-            base_price,
-            discount_percent,
-            thumbnail_url
-        FROM Products
-        WHERE product_name LIKE ? 
-           OR product_id LIKE ?
-        LIMIT 20";
+// 2. TÌM KIẾM TRONG DATABASE (SQL)
+$productsFound = [];
 
 try {
     global $pdo;
+    
+    // Query tìm kiếm sản phẩm
+    $sql = "SELECT 
+                p.product_id, 
+                p.product_name, 
+                p.base_price, 
+                p.discount_percent, 
+                p.thumbnail_url, 
+                c.category_name
+            FROM Products p
+            LEFT JOIN Categories c ON p.category_id = c.category_id
+            WHERE p.product_name LIKE :kw OR c.category_name LIKE :kw
+            LIMIT 5"; 
+
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$keyword, $keyword]);
+    $stmt->execute([':kw' => $keyword]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // FIX: Chuẩn hóa đường dẫn ảnh VÀO code PHP
-    foreach ($rows as &$row) {
-        $thumb = trim($row['thumbnail_url'] ?? '');
-        $default_path = 'assets/images/san_pham/placeholder.jpg';
-        
-        if (empty($thumb)) {
-            $row['thumbnail_url'] = $default_path;
-        } else {
-            // Đảm bảo đường dẫn luôn bắt đầu từ thư mục gốc (shopthoitrang/)
-            $thumb = ltrim($thumb, '/');
-            // Nếu ảnh chỉ là tên file (ví dụ: a1.jpg), thì thêm prefix folder
-            if (strpos($thumb, 'assets/images/san_pham/') === false) {
-                 $row['thumbnail_url'] = 'assets/images/san_pham/' . basename($thumb);
-            } else {
-                $row['thumbnail_url'] = $thumb;
-            }
+    foreach ($rows as $row) {
+        // Tính giá hiển thị (để PHP format sẵn)
+        $price = (float)$row['base_price'];
+        $discount = (int)$row['discount_percent'];
+        $finalPrice = $price * (1 - ($discount / 100));
+
+        // Xử lý ảnh
+        $thumb = $row['thumbnail_url'];
+        if (empty($thumb) || strpos($thumb, 'assets/') === false) {
+             $thumb = 'assets/images/san_pham/' . basename($thumb);
         }
-    }
-    unset($row); // Rất quan trọng khi dùng reference (&)
 
-    if (empty($rows)) {
-        echo json_encode([
-            "status" => "success",
-            "message" => "Không tìm thấy sản phẩm nào phù hợp.Xin thử từ khóa khác.",
-            "products" => []
-        ]);
-        exit;
+        $productsFound[] = [
+            'product_id'       => $row['product_id'],
+            'product_name'     => $row['product_name'],
+            'price_vnd'        => number_format($finalPrice, 0, ',', '.') . ' đ',
+            'thumbnail_url'    => $thumb,
+            
+            // --- QUAN TRỌNG: TRẢ VỀ DỮ LIỆU GỐC ĐỂ JS KHÔNG BỊ LỖI GIÁ ---
+            'base_price'       => $row['base_price'],       // JS cần cái này
+            'discount_percent' => $row['discount_percent']  // JS cần cái này
+            // -------------------------------------------------------------
+        ];
     }
-
-    echo json_encode([
-        "status" => "success",
-        "message" => "🔥 Đã tìm thấy " . count($rows) . " sản phẩm:",
-        "products" => $rows
-    ]);
 
 } catch (PDOException $e) {
-    error_log("DB Error in chat box: " . $e->getMessage()); 
-    echo json_encode([
-        "status" => "error",
-        "message" => "Lỗi truy vấn CSDL. Vui lòng thử lại sau."
-    ]);
+    // Lờ đi lỗi DB
 }
+
+// 3. TẠO CÂU TRẢ LỜI "GIẢ AI"
+$aiReply = "";
+$icon = ["🥰", "🔥", "✨", "❤️", "😍", "👗", "👠"];
+$randomIcon = $icon[array_rand($icon)];
+
+if (count($productsFound) > 0) {
+    // Kịch bản 1: Có sản phẩm
+    $introPhrases = [
+        "Dạ em đã tìm thấy mấy mẫu này hợp với ý anh/chị nè $randomIcon. Chờ 3 giây nãy giờ mới lục kho xong ạ hihi.",
+        "Có ngay ạ! Mấy mẫu này đang hot trend lắm, anh/chị xem thử nhé $randomIcon",
+        "Woa, từ khóa '$userMessage' shop có mấy món cực xinh này. Mời anh/chị quẹo lựa nha $randomIcon"
+    ];
+    $aiReply = $introPhrases[array_rand($introPhrases)];
+} else {
+    // Kịch bản 2: Không có sản phẩm
+    $failPhrases = [
+        "Huhu tiếc quá, em lục tung kho mà không thấy mẫu '$userMessage' nào rồi 😭. Anh/chị tìm thử 'Áo', 'Váy' xem sao nhé!",
+        "Hiện tại mẫu này bên em đang tạm hết ạ. Hay là mình tham khảo các mẫu khác nha $randomIcon",
+        "Xin lỗi nha, em suy nghĩ mãi mà không nhớ ra mẫu '$userMessage' để ở đâu. Thử từ khóa khác giúp em với!"
+    ];
+    $aiReply = $failPhrases[array_rand($failPhrases)];
+}
+
+// 4. TRẢ KẾT QUẢ
+echo json_encode([
+    "status"   => "success",
+    "message"  => $aiReply,
+    "products" => $productsFound
+]);
 ?>

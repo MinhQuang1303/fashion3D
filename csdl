@@ -1,7 +1,4 @@
 /*
-
-cd C:\laragon\www\shopthoitrang
-php websocket_server.php 
   sử dụng chạy cmd này để chạy websocket server
 php shopthoitrang/websocket_server/server.php
 
@@ -397,7 +394,7 @@ INSERT INTO Products (category_id, product_name, description, base_price, discou
 (2, 'Jogger Sporty Stripe', 'Năng động từng bước chân. Quần nỉ da cá bo gấu, phối sọc thể thao khỏe khoắn.', 350000, 20, FALSE, FALSE, '/q7.jpg', NULL),
 
 -- --- VEST (V Series) ---
-(14, 'Suit Gentleman Black', 'Bộ Suit đen huyền thoại. Form Slimfit ôm dáng, đệm vai vừa phải tạo sự tự tin tuyệt đối trong các sự kiện quan trọng.', 1850000, 0, TRUE, FALSE, '/vest.jpg', NULL),
+(14, 'Suit Gentleman Black', 'Bộ Suit đen huyền thoại. Form Slimfit ôm dáng, đệm vai vừa phải tạo sự tự tin tuyệt đối trong các sự kiện quan trọng.', 1850000, 0, TRUE, FALSE, '/vest.jpg', 'vest1.glb'),
 (14, 'Suit Business Navy', 'Phong thái doanh nhân. Màu xanh Navy quyền lực, ve áo K-Notch cổ điển, lót lụa cao cấp.', 2100000, 10, FALSE, FALSE, '/vest2.jpg', NULL),
 (14, 'Suit Korea Style Beige', 'Phong cách Oppa Hàn Quốc. Tone màu Be sáng trẻ trung, chất vải lanh pha cotton thoáng mát.', 1600000, 5, TRUE, TRUE, '/vest1.jpg', NULL),
 
